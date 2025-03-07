@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+</head>
+<body>
+    <h1>Chat App</h1>
+
+    <!-- Khung chứa các tin nhắn -->
+    <div id="messageContainer"></div>
+
+    <!-- Ô nhập tin nhắn -->
+    <input type="text" id="messageInput" placeholder="Type your message...">
+    
+    <!-- Nút gửi tin nhắn -->
+    <button id="sendMessageButton">Send</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.js"></script>
+    <script>
+        var socket = io.connect('http://localhost:3000',{
+            query: {
+                token: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1ZmU1YjA0NjJiNmNjMzFjNWJiMjkxOCIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcxMTQxNjU3MSwiZXhwIjoxNzExNDIwMTcxfQ.FaF9U3RNxhNnGOdvd7wNftSGsgSvQdyuBz_pUWd_jcw'
+            }
+        });
+
+        // Lắng nghe sự kiện nhận tin nhắn từ máy chủ
+        socket.on('message', function(data) {
+            console.log({data});
+            renderMessage(data.savedMessage.sender.fullname, data.savedMessage.message); // Hiển thị tin nhắn
+        });
+
+        socket.on('joinRoom', function(data) {
+            console.log({data});
+        });
+
+       
+
+        // Hàm hiển thị tin nhắn
+        function renderMessage(sender, message) {
+            var messageContainer = document.getElementById('messageContainer');
+            var messageElement = document.createElement('div');
+            messageElement.innerText = sender + ': ' + message; // Hiển thị tin nhắn với người gửi
+            messageContainer.appendChild(messageElement); // Thêm tin nhắn vào khung chứa
+        }
+        var sender = '65fe5b2d62b6cc31c5bb2924'
+        var roomId = '6602219c7f9fbf7b4dc706cc'
+        // Gửi tin nhắn khi nút gửi được nhấn
+        document.getElementById('sendMessageButton').addEventListener('click', function() {
+            var messageInput = document.getElementById('messageInput');
+            var message = messageInput.value.trim(); // Lấy giá trị từ ô nhập và loại bỏ khoảng trắng ở đầu và cuối
+            
+            if (message !== '') { // Kiểm tra xem tin nhắn có rỗng không
+                socket.emit('message', { message, sender, roomId }); // Gửi tin nhắn qua socket
+                messageInput.value = ''; // Xóa nội dung trong ô nhập sau khi gửi
+            }
+        });
+
+       // Khi kết nối với máy chủ, tham gia vào phòng
+        socket.on('connect', () => {
+            socket.emit('joinRoom', roomId );
+        });
+
+         // Lắng nghe sự kiện tham gia vào phòng từ máy chủ và log ra dữ liệu nhận được
+         socket.on('joinedRoom', data => console.log('Data from joinRoom event:', data));
+    
+    </script>
+</body>
+</html>

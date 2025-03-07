@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.dropdown-header-open {
+    top: 4rem;
+    transition: top 0.5s ease;
+}
+
+.dropdown-header-close {
+    top: -4rem;
+    transition: top 0.5s ease;
+}
+
+.sidebar1-open {
+    left: 0rem;
+    transition: left 0.5s ease;
+}
+
+.sidebar1-close {
+    left: -18rem;
+    transition: left 0.5s ease;
+}
